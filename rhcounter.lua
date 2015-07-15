@@ -7,3 +7,12 @@ function maxSteam(deg)
                   math.exp(1.9830825, -6) * math.pow(temp, 4) + 
                   math.exp(1.5773396, -8) * math.pow(temp, 5))
 end
+
+
+function newRH(currentTemp, newTemp, rh)
+   --räknar ut nya luftfuktigheten om temperaturen ändras.
+   local currentSteam = maxSteam(currentTemp) * (rh / 100)
+   local newMaxSteam = maxSteam(newTemp)
+   local newRH = (newMaxSteam / currentSteam) * 100
+   return newRH
+end
