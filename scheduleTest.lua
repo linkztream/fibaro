@@ -1,7 +1,0 @@
---[[
-%% autostart
-%% properties
-%% globals
---]]
-
-local 
