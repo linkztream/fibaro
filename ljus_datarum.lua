@@ -13,7 +13,7 @@ end
 local sVal, mTime = fibaro:get(mSenseId, "value")
 local sLamp = fibaro:getValue(42, "value")
 
-while(os.time()-mTime <= 300) do
+while(os.time()-mTime <= 600) do
   sVal, mTime = fibaro:get(mSenseId, "value")
   if(tonumber(sLamp) == 0) then
     fibaro:call(42, "turnOn")
@@ -26,5 +26,5 @@ while(os.time()-mTime <= 300) do
 end
 
 fibaro:call(42, "turnOff")
-fibaro:call(99, "turnOn")
+fibaro:call(99, "turnOff")
 fibaro:call(78, "pressButton", "4")
