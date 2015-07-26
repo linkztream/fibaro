@@ -98,13 +98,13 @@ function avfuktare.full()
             c = c + 1
         end
 
+        avfuktare.updateExpruntime()
         avfuktare.pushNotify(pushDev, "Avfuktaren är full!")
         while avfuktare.power < 300 do
             fibaro:sleep(5000)
             avfuktare.getStatus()
         end
         fibaro:setGlobal("avfktStart", os.time())
-        avfuktare.updateExpruntime()
     end
 end
 
