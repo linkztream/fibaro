@@ -39,6 +39,29 @@ function epochTime(tString)
 end
 
 
+for i=1,#schedule do
+   schedule[i][1] = epochTime(schedule[i][1])
+end
+
+
+function bubblesort(array)
+   n = #array -1
+   while n > 0 do
+      x = 1
+      while x < #array do
+         if (array[x][1]>array[x+1][1]) then
+            a = table.remove(array, x)
+            table.insert(array,x+1, a)
+            x = x + 1
+         else
+            x = x + 1
+         end
+      end
+      n = n - 1
+   end
+end
+
+
 function executor(dev, command, time)
    local tDev = dev
    local tCommand = string.lower(command)
