@@ -4,6 +4,8 @@
 %% globals
 --]]
 
+fibaro:debug("Startar schemaläggaren...")
+
 while true do
 
 if (fibaro:countScenes() > 1) then
@@ -43,7 +45,7 @@ function epochTime(tString)
          else
             local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
             epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
-         end
+      end
       
       if string.match(tString, "%d+&") then
          local offset = (tonumber(string.match(tString, "%d+&"))) * 60
@@ -65,7 +67,6 @@ end
 
 function generateschedule(schedarray)
    local compiledSchedule = {}
-    
    for i=1,#schedarray do
       schedarray[i][1] = epochTime(schedarray[i][1])
       schedarray[i][2] = epochTime(schedarray[i][2])
@@ -105,11 +106,12 @@ end
 function executor(time, dev, command)
    local tDev = dev
    local tCommand = string.lower(command)
-   local time = time or os.time()
-   time = tonumber(epochTime(time))
+   local time = tonumber(time) or os.time()
    
    if (time > os.time()) then
-      fibaro:sleep((time-os.time()*1000))
+      local sleeptime = time - os.time()
+      fibaro:debug("Vilar i: " .. sleeptime .. " sekunder")
+      fibaro:sleep(sleeptime*1000)
    end
 
    if (type(tDev) == "table") then
@@ -118,8 +120,8 @@ function executor(time, dev, command)
             fibaro:call(v, "turnOn")
          else
             fibaro:call(v, "turnOff")
+         end
       end
-   else
    end
 end
 
@@ -136,10 +138,10 @@ end
 
 -- Main loop
 
-runschedule = generateschedule(runschedule)
+runschedule = generateschedule(schedule)
 bubblesort(runschedule)
 
-for i,v in ipairs(runschedule)
+for i,v in ipairs(runschedule) do
    executor(v[1], v[2], v[3])
 end
 
