@@ -14,17 +14,15 @@ end
 
 -- THE scheduler.
 
-local uBel = {21, 101}
-local mysBel = {4, 22, 23, 26}
+local uBel = {101}
+local mysBel = {61,91}
 local singleDev = 3
 local sunriseHour = fibaro:getValue(1, "sunriseHour")
 local sunsetHour = fibaro:getValue(1, "sunsetHour")
 
 schedule = {
             {"sunsetHour+30", "22:30", uBel},
-            {"17:15", "23:00", "3"},
-            {"8:25", "sunsetHour", "2"},
-            {"21:15", "21:00", "4"}
+            {"sunsetHour-15", "22:00", mysBel},
             }
 
 -- === funktionsblock ===
