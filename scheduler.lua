@@ -18,12 +18,12 @@ local singleDev = 3
 local sunriseHour = fibaro:getValue(1, "sunriseHour")
 local sunsetHour = fibaro:getValue(1, "sunsetHour")
 
---[[
-local schedule = {"sunsetHour" = "uBel, on",
-                  "19:30" = "mysBel, on",
-                  "22:30" = "mysBel, off",
-                  "23:00" = "uBel, off",}
-]]--
+schedule = {
+            {"sunsetHour+30", "22:30", uBel},
+            {"17:15", "23:00", "3"},
+            {"8:25", "sunsetHour", "2"},
+            {"21:15", "21:00", "4"}
+            }
 
 -- === funktionsblock ===
 
@@ -33,14 +33,69 @@ end
 
 
 function epochTime(tString)
-   local hour, min = string.match(tString, "(%d+):(%d+)")
+
    local time = os.date("*t")
-   return os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+
+   if (string.match(tString, "sunriseHour%+%d+")) then
+      local hour, min = string.match(sunriseHour, "(%d+):(%d+)")
+      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+      local offset = tonumber(string.match(tString, "%d+$"))
+      epTime = epTime + (offset * 60)
+      return epTime
+
+   elseif (string.match(tString, "sunriseHour%-%d+")) then
+      local hour, min = string.match(sunriseHour, "(%d+):(%d+)")
+      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+      local offset = tonumber(string.match(tString, "%d+$"))
+      epTime = epTime - (offset * 60)
+      return epTime
+
+   elseif (string.match(tString, "sunsetHour%+%d+")) then
+      local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
+      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+      local offset = tonumber(string.match(tString, "%d+$"))
+      epTime = epTime + (offset * 60)
+      return epTime
+
+   elseif (string.match(tString, "sunsetHour%-%d+")) then
+      local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
+      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+      local offset = tonumber(string.match(tString, "%d+$"))
+      epTime = epTime - (offset * 60)
+      return epTime
+
+   elseif (string.match(tString, "sunsetHour")) then
+      local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
+      return os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+
+   elseif (string.match(tString, "sunriseHour")) then
+      local hour, min = string.match(sunriseHour, "(%d+):(%d+)")
+      return os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+   else
+      local hour, min = string.match(tString, "(%d+):(%d+)")
+      return os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+   end
 end
 
 
-for i=1,#schedule do
-   schedule[i][1] = epochTime(schedule[i][1])
+function generateschedule(schedarray)
+   local compiledSchedule = {}
+    
+   for i=1,#schedarray do
+      schedarray[i][1] = epochTime(schedarray[i][1])
+      schedarray[i][2] = epochTime(schedarray[i][2])
+      
+      -- kolla så att det inte är någon tid som börjar efter den ska sluta.
+      if (schedarray[i][1] >= schedarray[i][2]) then
+         do break end
+      end
+
+      table.insert(compiledSchedule, 
+                  {schedarray[i][1], schedarray[i][3], "on"})
+      table.insert(compiledSchedule, 
+                  {schedarray[i][2], schedarray[i][3], "off"})
+   end
+   return compiledSchedule
 end
 
 
@@ -62,14 +117,14 @@ function bubblesort(array)
 end
 
 
-function executor(dev, command, time)
+function executor(time, dev, command)
    local tDev = dev
    local tCommand = string.lower(command)
-   local time = time or nil
+   local time = time or os.time()
    time = tonumber(epochTime(time))
    
    if (time > os.time()) then
-      fibaro:sleep(time-os.time())
+      fibaro:sleep((time-os.time()*1000))
    end
 
    if (type(tDev) == "table") then
@@ -83,10 +138,24 @@ function executor(dev, command, time)
    end
 end
 
+function sleep()
+   local midnite = "00:00"
+   midnite = epochTime(midnite)
+   midnite = midnite + 60
+   fibaro:sleep((midnite - os.time()*1000))
+end
+
+
 -- Main loop
 
-executor(uBel, on, sunsetHour)
-executor(uBel, off, "22:00")
+runschedule = generateschedule(runschedule)
+bubblesort(runschedule)
 
+for i,v in ipairs(runschedule)
+   executor(v[1], v[2], v[3])
+end
+
+-- Sov till efter midnatt innan nästa körning börjar.
+sleep()
 
 end
