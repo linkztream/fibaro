@@ -8,8 +8,37 @@ scheduler = {
                   }
 
 
-               
+  
 function epochTime(tString)
+   local time = os.date("*t")
+   local epTime = 0
+
+   if (string.match(tString, "sun.+")) then
+      if (string.match(tString, "rise")) then
+            local hour, min = string.match(sunriseHour, "(%d+):(%d+)")
+            epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+         else
+            local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
+            epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+         end
+      if string.match(tString, "%d+&") then
+         local offset = (tonumber(string.match(tString, "%d+&"))) * 60
+         if (string.match(tString, "%+")) then
+            epTime = epTime + offset
+         else
+            epTime = epTime - offset
+         end
+      end
+   elseif (string.match(tString, "(%d+):(%d+)")) then
+      local hour, min = string.match(tString, "(%d+):(%d+)")
+      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+   end
+   return epTime
+
+end
+
+
+--[[ function epochTime(tString)
 
    local time = os.date("*t")
 
@@ -53,7 +82,7 @@ function epochTime(tString)
       return os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
    end
 end
-
+]]--
 
 function generateschedule(schedarray)
    local compiledSchedule = {}
