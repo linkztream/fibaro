@@ -35,46 +35,44 @@ end
 function epochTime(tString)
 
    local time = os.date("*t")
+   local epTime = 0
 
    if (string.match(tString, "sunriseHour%+%d+")) then
       local hour, min = string.match(sunriseHour, "(%d+):(%d+)")
       epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
       local offset = tonumber(string.match(tString, "%d+$"))
       epTime = epTime + (offset * 60)
-      return epTime
 
    elseif (string.match(tString, "sunriseHour%-%d+")) then
       local hour, min = string.match(sunriseHour, "(%d+):(%d+)")
       epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
       local offset = tonumber(string.match(tString, "%d+$"))
       epTime = epTime - (offset * 60)
-      return epTime
 
    elseif (string.match(tString, "sunsetHour%+%d+")) then
       local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
       epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
       local offset = tonumber(string.match(tString, "%d+$"))
       epTime = epTime + (offset * 60)
-      return epTime
 
    elseif (string.match(tString, "sunsetHour%-%d+")) then
       local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
       epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
       local offset = tonumber(string.match(tString, "%d+$"))
       epTime = epTime - (offset * 60)
-      return epTime
 
    elseif (string.match(tString, "sunsetHour")) then
       local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
-      return os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
 
    elseif (string.match(tString, "sunriseHour")) then
       local hour, min = string.match(sunriseHour, "(%d+):(%d+)")
-      return os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
    else
       local hour, min = string.match(tString, "(%d+):(%d+)")
-      return os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
+      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
    end
+   return epTime
 end
 
 
@@ -139,9 +137,12 @@ function executor(time, dev, command)
 end
 
 function sleep()
-   local midnite = "00:00"
+   -- sätt tiden till en minut innan midnatt för att vara säker på att den
+   -- inte tar tiden från i morse.
+   local midnite = "23:59"
    midnite = epochTime(midnite)
-   midnite = midnite + 60
+   -- lägg på 90 sekunder för att komma över på nästa dygn
+   midnite = midnite + 90
    fibaro:sleep((midnite - os.time()*1000))
 end
 
