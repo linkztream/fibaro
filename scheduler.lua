@@ -45,8 +45,8 @@ function epochTime(tString)
             epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
       end
       
-      if string.match(tString, "%d+&") then
-         local offset = (tonumber(string.match(tString, "%d+&"))) * 60
+      if string.match(tString, "[%+%-]%d+$") then
+         local offset = (tonumber(string.match(tString, "%d+$"))) * 60
          if (string.match(tString, "%+")) then
             epTime = epTime + offset
          else

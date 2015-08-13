@@ -1,7 +1,7 @@
 sunsetHour = "20:58"
 sunriseHour = "05:03"
 scheduler = {
-                  {"sunsetHour-15", "22:00", "1", "on"},
+                  {"sunsetHour+25", "22:00", "1", "on"},
                   {"17:15", "23:00", "3", "off"},
                   {"8:25", "sunsetHour", "2", "on"},
                   {"21:15", "21:00", "4", "off"}
@@ -21,8 +21,8 @@ function epochTime(tString)
             local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
             epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
          end
-      if string.match(tString, "%d+&") then
-         local offset = (tonumber(string.match(tString, "%d+&"))) * 60
+      if string.match(tString, "[%+%-]%d+$") then
+         local offset = (tonumber(string.match(tString, "%d+$"))) * 60
          if (string.match(tString, "%+")) then
             epTime = epTime + offset
          else
