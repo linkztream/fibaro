@@ -6,17 +6,21 @@
 
 fibaro:debug("Startar schemaläggaren...")
 
-while true do
-
 if (fibaro:countScenes() > 1) then
  fibaro:abort()
 end
 
--- THE scheduler.
-
 local uBel = {101}
 local mysBel = {61,91}
 local singleDev = 3
+
+while true do
+
+
+fibaro:debug(os.date("%d/%m/%Y") .. ": påbörjar körning.")
+
+-- THE scheduler.
+
 local sunriseHour = fibaro:getValue(1, "sunriseHour")
 local sunsetHour = fibaro:getValue(1, "sunsetHour")
 
@@ -108,7 +112,7 @@ function executor(time, dev, command)
    
    if (time > os.time()) then
       local sleeptime = time - os.time()
-      fibaro:debug("Vilar i: " .. sleeptime .. " sekunder")
+      fibaro:debug(os.date("%d/%m/%Y") .. ": Vilar i: " .. sleeptime .. " sekunder")
       fibaro:sleep(sleeptime*1000)
    end
 
@@ -116,8 +120,10 @@ function executor(time, dev, command)
       for i, v in ipairs(tDev) do
          if (tCommand == "on") then
             fibaro:call(v, "turnOn")
+            fibaro:debug("Slår på " .. fibaro:getName(v))
          else
             fibaro:call(v, "turnOff")
+            fibaro:debug("Slår av " .. fibaro:getName(v))
          end
       end
    end
@@ -130,6 +136,7 @@ function sleep()
    midnite = epochTime(midnite)
    -- lägg på 90 sekunder för att komma över på nästa dygn
    midnite = midnite + 90
+   fibaro:debug(os.date("%d/%m/%Y").. ": Påbörjar vila till nästa dygn. \nKommer sova i: " .. (midnite-os.time()) .. " sekunder.")
    fibaro:sleep((midnite - os.time()*1000))
 end
 
