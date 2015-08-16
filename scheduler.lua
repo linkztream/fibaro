@@ -11,7 +11,7 @@ if (fibaro:countScenes() > 1) then
 end
 
 local uBel = {101}
-local mysBel = {61,91}
+local mysBel = {21}
 local singleDev = 3
 
 while true do
@@ -137,7 +137,7 @@ function sleep()
    -- lägg på 90 sekunder för att komma över på nästa dygn
    midnite = midnite + 90
    fibaro:debug(os.date("%d/%m/%Y").. ": Påbörjar vila till nästa dygn. \nKommer sova i: " .. (midnite-os.time()) .. " sekunder.")
-   fibaro:sleep((midnite - os.time()*1000))
+   fibaro:sleep((midnite - os.time())*1000)
 end
 
 
