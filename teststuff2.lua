@@ -38,52 +38,6 @@ function epochTime(tString)
 end
 
 
---[[ function epochTime(tString)
-
-   local time = os.date("*t")
-
-   if (string.match(tString, "sunriseHour%+%d+")) then
-      local hour, min = string.match(sunriseHour, "(%d+):(%d+)")
-      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
-      local offset = tonumber(string.match(tString, "%d+$"))
-      epTime = epTime + (offset * 60)
-      return epTime
-
-   elseif (string.match(tString, "sunriseHour%-%d+")) then
-      local hour, min = string.match(sunriseHour, "(%d+):(%d+)")
-      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
-      local offset = tonumber(string.match(tString, "%d+$"))
-      epTime = epTime - (offset * 60)
-      return epTime
-
-   elseif (string.match(tString, "sunsetHour%+%d+")) then
-      local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
-      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
-      local offset = tonumber(string.match(tString, "%d+$"))
-      epTime = epTime + (offset * 60)
-      return epTime
-
-   elseif (string.match(tString, "sunsetHour%-%d+")) then
-      local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
-      epTime = os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
-      local offset = tonumber(string.match(tString, "%d+$"))
-      epTime = epTime - (offset * 60)
-      return epTime
-
-   elseif (string.match(tString, "sunsetHour")) then
-      local hour, min = string.match(sunsetHour, "(%d+):(%d+)")
-      return os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
-
-   elseif (string.match(tString, "sunriseHour")) then
-      local hour, min = string.match(sunriseHour, "(%d+):(%d+)")
-      return os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
-   else
-      local hour, min = string.match(tString, "(%d+):(%d+)")
-      return os.time({year=time.year, month = time.month, day = time.day, hour = hour, min = min})
-   end
-end
-]]--
-
 function generateschedule(schedarray)
    local compiledSchedule = {}
     
