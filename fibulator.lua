@@ -19,6 +19,9 @@ function fibsim.call(self, id, op)
    end
 end
 
+function fibsim.countScenes(self, id)
+   print("Låtsas att jag räknar antalet scener som körs just nu...")
+end
 
 function fibsim.sleep(self, time)
    print("Paus i: " .. time/1000 .. " sekunder")
