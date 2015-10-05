@@ -11,7 +11,8 @@ if (fibaro:countScenes() > 1) then
 end
 
 local uBel = {101}
-local mysBel = {21}
+local mysBel = {21, 110, 114, "rfx7"}
+local nattlampor = {61, "rfx8", "rfx9", "rfx12", "rfx13"}
 local singleDev = 3
 
 while true do
@@ -104,6 +105,35 @@ function bubblesort(array)
    end
 end
 
+function power_rfx(devID, command)
+   -- Slå av/på rfx-grejor.
+   RFX = Net.FHttp("10.0.16.32", 8080)
+   trigger = 0
+   while (trigger < 3)
+      do
+         if (command == "on") then
+            response, status, errorCode = RFX:GET("/json.htm?type=command&param=switchlight&idx=" .. devID .. "&switchcmd=On&level=0")
+            fibaro:debug(response)
+         else
+            response, status, errorCode = RFX:GET("/json.htm?type=command&param=switchlight&idx=" .. devID .. "&switchcmd=Off&level=0")
+            fibaro:debug(response)
+         end
+         fibaro:sleep(750)
+         trigger = trigger + 1
+      end
+end
+
+function power_fib(devID, command)
+   -- Slå av/på vanliga fibaro-prylar
+   if (command == "on") then
+      fibaro:call(devID, "turnOn")
+      fibaro:debug("Slår på " .. fibaro:getName(devID))
+   else
+      fibaro:call(devID, "turnOff")
+      fibaro:debug("Slår av " .. fibaro:getName(devID))
+   end
+end
+
 
 function executor(time, dev, command)
    local tDev = dev
@@ -118,12 +148,12 @@ function executor(time, dev, command)
 
    if (type(tDev) == "table") then
       for i, v in ipairs(tDev) do
-         if (tCommand == "on") then
-            fibaro:call(v, "turnOn")
-            fibaro:debug("Slår på " .. fibaro:getName(v))
+         if (string.match(v, "rfx")) then
+            rfxid = tonumber(string.match(v, "%d+"))
+            power_rfx(rfxid, tCommand)          
          else
-            fibaro:call(v, "turnOff")
-            fibaro:debug("Slår av " .. fibaro:getName(v))
+            fibid = tonumber(v)
+            power_fib(fibid, tCommand)
          end
       end
    end
