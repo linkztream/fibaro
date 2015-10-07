@@ -1,6 +1,6 @@
 --[[
-%% autostart
 %% properties
+
 %% globals
 --]]
 
@@ -10,17 +10,7 @@ if (fibaro:countScenes() > 1) then
  fibaro:abort()
 end
 
-local uBel = {101}
-local mysBel = {21, 110, 114, "rfx7"}
-local nattlampor = {61, "rfx8", "rfx9", "rfx12", "rfx13"}
-local singleDev = 3
-
-while true do
-
-
-fibaro:debug(os.date("%d/%m/%Y") .. ": påbörjar körning.")
-
--- THE scheduler.
+local nattlampor = {8, 9, 12, 13}
 
 local sunriseHour = fibaro:getValue(1, "sunriseHour")
 local sunsetHour = fibaro:getValue(1, "sunsetHour")
@@ -29,13 +19,6 @@ schedule = {
             {"sunsetHour+30", "22:30", uBel},
             {"sunsetHour-15", "22:00", mysBel},
             }
-
--- === funktionsblock ===
-
-function devType(devID)
-   -- virtual_device
-end
-
 
 function epochTime(tString)
    local time = os.date("*t")
@@ -105,23 +88,23 @@ function bubblesort(array)
    end
 end
 
+
 function power_rfx(devID, command)
    -- Slå av/på rfx-grejor.
-   RFX = Net.FHttp("10.0.16.32", 8080)
+   
    trigger = 0
+   devID = tostring(devID)
+   capCom = firstToUpper(command)
+   fibaro:debug("Enhet: " .. devID .. " och kommando: " .. capCom .. " skickas.")
+
    while (trigger < 3)
       do
-         if (command == "on") then
-            response, status, errorCode = RFX:GET("/json.htm?type=command&param=switchlight&idx=" .. devID .. "&switchcmd=On&level=0")
-            fibaro:debug(response)
-         else
-            response, status, errorCode = RFX:GET("/json.htm?type=command&param=switchlight&idx=" .. devID .. "&switchcmd=Off&level=0")
-            fibaro:debug(response)
-         end
+         updateDevice(devID)
          fibaro:sleep(750)
          trigger = trigger + 1
       end
 end
+
 
 function power_fib(devID, command)
    -- Slå av/på vanliga fibaro-prylar
@@ -149,15 +132,18 @@ function executor(time, dev, command)
    if (type(tDev) == "table") then
       for i, v in ipairs(tDev) do
          if (string.match(v, "rfx")) then
-            rfxid = tonumber(string.match(v, "%d+"))
-            power_rfx(rfxid, tCommand)          
+           rfxid = tonumber(string.match(v, "%d+"))
+           power_rfx(rfxid, tCommand)
+           fibaro:debug("skickar kommando: " .. rfxid .. " " .. tCommand)          
          else
             fibid = tonumber(v)
             power_fib(fibid, tCommand)
+            fibaro:debug("skickar kommando: " .. fibid .. " " .. tCommand) 
          end
       end
    end
 end
+
 
 function sleep()
    -- sätt tiden till en minut innan midnatt för att vara säker på att den
@@ -170,17 +156,50 @@ function sleep()
    fibaro:sleep((midnite - os.time())*1000)
 end
 
+function firstToUpper(str)
+   return (str:gsub("^%l", string.upper))
+end
 
--- Main loop
+
+local function updateDevice(deviceId, successCallback, errorCallback)
+
+local http = net.HTTPClient()
+
+http:request('http://10.0.16.32:8080/json.htm?type=command&param=switchlight&idx=' .. deviceId .. '&switchcmd=On&level=0', {
+options = {
+method = 'GET'
+},
+success = successCallback,
+error = errorCallback
+})
+fibaro:debug("Kör HTTPClient-ID: " .. deviceId)
+end
 
 runschedule = generateschedule(schedule)
 bubblesort(runschedule)
 
+fibaro:debug("Kör httpclient")
+for i,v in ipairs(nattlampor) do
+   updateDevice(v)
+end
+
+fibaro:debug("Kör executorn!")
 for i,v in ipairs(runschedule) do
    executor(v[1], v[2], v[3])
 end
 
--- Sov till efter midnatt innan nästa körning börjar.
-sleep()
+--[[
+local srHour = fibaro:getValue(1, "sunriseHour")
+local ssHour = fibaro:getValue(1, "sunsetHour")
+fibaro:debug(srHour)
+fibaro:debug(ssHour)
 
-end
+local dType = fibaro:getType(78)
+fibaro:debug(dType)
+
+fibaro:debug(fibaro:getValue(4, "power"))
+fibaro:debug(fibaro:getValue(4, "power"))
+
+fibaro:debug(fibaro:getName(42))
+
+--]]
